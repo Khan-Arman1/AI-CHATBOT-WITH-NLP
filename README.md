@@ -14,6 +14,9 @@ _DURATION:_ 4 WEEKS
 _MENTOR:_  NEELA SANTOSH
 
 ##DESCRIPTION OF TAKS
+
+_**Spacy library doesn't support in my system, I have used google colab to work on chatbot, I have uploaded a googlecolab python chatbot downloaded file on this repositery**_
+
 The code create a NLP Chatbot using a spacy library and google api for better search experience, In the code I have first imported necessary libraries- spacy, random, re, wikipedia, googlesearch, pyjokes, google genai.
 _Spacy_ is used to create a pipeline that finds entity and other data from a entered query or sentence.
 _Random_ is used to select random string from response dictionary's keys that respond for the entered query.
