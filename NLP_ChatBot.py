@@ -103,7 +103,7 @@ def chatbot_response():
                     except:
                       response = client.models.generate_content(model="gemini-1.5-flash", contents=i)
                       print("Bot: ",response.text)
-                      break
+                      # break
             except:
               print("Bot: ",responses['default'][random.randrange(0,len(responses['default']))])
 
