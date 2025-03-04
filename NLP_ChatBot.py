@@ -32,11 +32,14 @@ responses = {
 def chatbot_response():
 #   looping over the functionality
   while True:
+      # takes user input
     user_input = input("You: ")
+      # tokenizing the input with nlp pipeline 
     doc = nlp(user_input)
 
     # using regular expression for greeting
     expression = re.findall('hello|hi|hey|hy',user_input.lower())
+      # if expression found the below code return a response
     if expression:
       print("Bot: ",responses['greeting'][random.randrange(0,len(responses['greeting']))])
 
@@ -109,5 +112,6 @@ def chatbot_response():
       break
 
 
-# calling the function to awake the chatbot
-chatbot_response()
+# if main file excecutes the function call to awake the chatbot 
+if __name__ == "__main__":
+    chatbot_response()
