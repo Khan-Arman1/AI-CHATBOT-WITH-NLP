@@ -1,23 +1,22 @@
 # importing necessary library
-import spacy
-import random
-import re
-import wikipedia
-import googlesearch
-import pyjokes 
-from google import genai
+import random # for random answer
+import spacy # for loading the pre trained model
+import re # search specific syntax
+import wikipedia # for simple searches
+import pyjokes # for some humor
+from google import genai # for better performance of the bot
+from google.colab import userdata # to load the api keys from google colab
 
+# create a api instance
+client = genai.Client(api_key=userdata.get('GOOGLEGEMINI_API_KEY'))
 
-# google api key for better search experience
-client = genai.Client(api_key="YOUR_API_KEY")
-
-# creating object and loading pre-trianed model
+# load the instance of spacy pre trained model
 nlp = spacy.load('en_core_web_sm')
 
 # checking pipeline
 nlp.pipe_names
 
-# classifying responses
+# response data
 responses = {
     'greeting': ['Hello!', 'Hi there!', 'Hey! How can I assist you?'],
     'goodbye': ['Goodbye!', 'See you later!', 'Have a great day!'],
@@ -27,84 +26,55 @@ responses = {
     'what are you': ['I\'m a chatbot ']
 }
 
-
-# creating function with all functionalities
 def chatbot_response():
-#   looping over the functionality
-  while True:
-      # takes user input
-    user_input = input("You: ")
-      # tokenizing the input with nlp pipeline 
-    doc = nlp(user_input)
 
+  while True:
+    user_input = input("You: ")
+    # create an nlp object
+    doc = nlp(user_input)
     # using regular expression for greeting
     expression = re.findall('hello|hi|hey|hy',user_input.lower())
-      # if expression found the below code return a response
     if expression:
       print("Bot: ",responses['greeting'][random.randrange(0,len(responses['greeting']))])
-
     # recognizing user name
     for ent in doc.ents:
       expression = re.findall('my name|i\'m| i am',user_input.lower())
       if expression:
         print("Bot: ",f"Hello, {ent.text}\nHow can I assist you today?")
-
     # telling jokes
     expression = re.findall('joke|tell me a joke|tell joke',user_input.lower())
     if expression:
       print("Bot: ",pyjokes.get_joke())
-
     # splitting in different sentences
     sentences=[token.text.lower() for token in doc.sents]
     for i in sentences:
+
+      # simple question answering using wikipedia
+      for ent in doc.ents:
+        search_result = wikipedia.summary(i,sentences=2)
+        print(f"Bot: Searching for {ent.text}\n",search_result)
 
       # using regular expression for simple questions
       expression = re.findall('how.+you|you.*fine|you.*well|hope.*you.+well|feel.*good',i)
       if expression:
         print("Bot: ",responses['how are you'][random.randrange(0,len(responses['how are you']))])
-
       # using regular expression for simple questions
-      expression = re.findall('.+ your name|who .+ you|what .+ you',i)
+      expression = re.findall('.+ your.*name|who.*are.*you|what.*are.*you',i)
       if expression:
         print("Bot: ",responses['what is your name'][random.randrange(0,len(responses['what is your name']))])
 
       # searching for wikipedia
-      expression = re.findall('who is.+|what is.+|explain.+|explain.+to.+me|elaborate.+|where does.+|when does.+|when did.+|when do.+|do .+|does .+',i)
+      expression = re.findall('who is.+|what.*is.+|explain.+|explain.+to.+me|elaborate.+|where does.+|when does.+|when did.+|when do.+|do .+|does .+',i)
       if expression:
-        # performing search for entity
-        for ent in doc.ents:
-
-        # performing search throught wikipedia
           try:
-            search_result = wikipedia.summary(i,sentences=2)
-            print(f"Bot: Searching for {ent.text}\n",search_result)
+            # pass direct query to the gemini model for better result except passing into the chunks
+              query = user_input
+              response = client.models.generate_content(
+                  model="models/gemini-1.5-flash",
+                  contents=query+'\t answer me in 100 words',
+              )
+              print(response.text)
           except:
-            try:
-
-              # checking for the organization or person
-              search_data=nlp(i)
-              for entity in search_data.ents:
-                # entity if organisation
-                if ent.label_ == 'ORG':
-                    try:
-                      for j in googlesearch.search(entity.text, tld=".org", num=5, stop=5, pause=2):
-                        print("Bot: Searching for",entity.text,"|",j)
-                        break
-                    except:
-                      for j in googlesearch.search(entity.text, tld="co.in", num=5, stop=5, pause=2):
-                        print("Bot: Searching for",entity.text,"|",j)
-                        break
-                # entity if person
-                if entity.label_ == "PERSON":
-                    try:
-                      for j in googlesearch.search(entity.text, tld="co.in", num=5, stop=5, pause=2):
-                        print("Bot: Searching for",entity.text,"|",j)
-                        break
-                    except:
-                      response = client.models.generate_content(model="gemini-1.5-flash", contents=i)
-                      print("Bot: ",response.text)
-                      # break
-            except:
               print("Bot: ",responses['default'][random.randrange(0,len(responses['default']))])
 
     if user_input.lower() == 'exit':
