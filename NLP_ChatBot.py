@@ -33,7 +33,7 @@ def chatbot_response():
     user_input = input("You: ")
     # create an nlp object
     doc = nlp(user_input)
-    expression = re.findall('date|time|time.*now',user_input.lower())
+    expression = re.findall('date|time|time.*now|day.*today',user_input.lower())
     if expression:
       print("Bot: ",datetime.ctime(datetime.now()))
     # using regular expression for greeting
