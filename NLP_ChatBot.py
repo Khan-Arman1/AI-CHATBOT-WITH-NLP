@@ -32,13 +32,16 @@ def chatbot_response():
     user_input = input("You: ")
     # create an nlp object
     doc = nlp(user_input)
+    expression = re.findall('date|time|time.*now',user_input.lower())
+    if expression:
+      print("Bot: ",datetime.ctime(datetime.now()))
     # using regular expression for greeting
     expression = re.findall('hello|hi|hey|hy',user_input.lower())
     if expression:
       print("Bot: ",responses['greeting'][random.randrange(0,len(responses['greeting']))])
     # recognizing user name
     for ent in doc.ents:
-      expression = re.findall('my name|i\'m| i am',user_input.lower())
+      expression = re.findall('my name is|i\'m| i am|My name is|Myname is|My nameis|Mynameis|mynameis|I\'m|Iam|I am',user_input)
       if expression:
         print("Bot: ",f"Hello, {ent.text}\nHow can I assist you today?")
     # telling jokes
@@ -48,11 +51,13 @@ def chatbot_response():
     # splitting in different sentences
     sentences=[token.text.lower() for token in doc.sents]
     for i in sentences:
-
-      # simple question answering using wikipedia
-      for ent in doc.ents:
-        search_result = wikipedia.summary(i,sentences=2)
-        print(f"Bot: Searching for {ent.text}\n",search_result)
+      try:
+        # simple question answering using wikipedia
+        for ent in doc.ents:
+          search_result = wikipedia.summary(i,sentences=2)
+          print(f"Bot: Searching for {ent.text}\n",search_result)
+      except:
+        pass
 
       # using regular expression for simple questions
       expression = re.findall('how.+you|you.*fine|you.*well|hope.*you.+well|feel.*good',i)
@@ -80,7 +85,6 @@ def chatbot_response():
     if user_input.lower() == 'exit':
       print("Bot: ",responses['goodbye'][random.randrange(0,3)])
       break
-
 
 # if main file excecutes the function call to awake the chatbot 
 if __name__ == "__main__":
