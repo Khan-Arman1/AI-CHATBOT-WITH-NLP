@@ -6,6 +6,7 @@ import wikipedia # for simple searches
 import pyjokes # for some humor
 from google import genai # for better performance of the bot
 from google.colab import userdata # to load the api keys from google colab
+from datetime import datetime
 
 # create a api instance
 client = genai.Client(api_key=userdata.get('GOOGLEGEMINI_API_KEY'))
